@@ -1,0 +1,9 @@
+Removed Pin From Net: NetName=INA3 Pin=U5-21
+Removed Pin From Net: NetName=INB3 Pin=U5-22
+Added Pin To Net: NetName=INA3 Pin=U5-32
+Added Pin To Net: NetName=INB3 Pin=U5-33
+Added Pin To Net: NetName=I2C_SCL Pin=U5-21
+Added Net: Name=I2C_SCL
+Added Pin To Net: NetName=I2C_SDA Pin=U5-22
+Added Net: Name=I2C_SDA
+Added Room: Name=ATWork2022

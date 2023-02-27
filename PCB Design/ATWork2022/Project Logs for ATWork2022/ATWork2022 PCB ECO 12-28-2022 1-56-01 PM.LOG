@@ -1,0 +1,54 @@
+Removed Pin From Net: NetName=VCC Pin=D1-2
+Removed Pin From Net: NetName=VCC Pin=PS1-3
+Removed Pin From Net: NetName=VBAT Pin=S1-3
+Added Component: Designator=C7(Cap SMD 100UF 35~50v)
+Add component (AddParameter): Name = "Data"; Value = "2017-3-10"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Desc."; Value = "CAP SMD TOTAL PACKAGES"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Designer"; Value = "Abbas Basereh"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "VALUE"; Value = "100nF"; VariantName = "[No Variations]"
+Added Component: Designator=C8(CAPC4817X12N)
+Add component (AddParameter): Name = "Data"; Value = "16-12-2016"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Desc."; Value = "CAP SMD 1206"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Designer"; Value = "Abbas Basereh"; VariantName = "[No Variations]"
+Added Component: Designator=D3(DIOM4629X24N)
+Add component (AddParameter): Name = "Data"; Value = "16-12-2016"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Designer"; Value = "Abbas Basereh"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Link"; Value = "http://www.tme.eu/en/details/m7/smd-universal-diodes/dc-components/"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Manufacturer"; Value = "DC COMPONENTS"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Part. No"; Value = "M7"; VariantName = "[No Variations]"
+Add Component: Footprint Not Found SW_KFC
+Added Component: Designator=U6(XCVR_ESP8266-12E/ESP-12E)
+Add component (AddParameter): Name = "Availability"; Value = "Unavailable"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "MF"; Value = ""; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "MP"; Value = "ESP8266-12E/ESP-12E"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Package"; Value = "None"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Price"; Value = "None"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Value"; Value = ""; VariantName = "[No Variations]"
+Added Component: Designator=UP1(SOT223)
+Add component (AddParameter): Name = "Data"; Value = "16-12-2016"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Designer"; Value = "Ali Hafizi"; VariantName = "[No Variations]"
+Added Pin To Net: NetName=GND Pin=C5-1
+Added Pin To Net: NetName=GND Pin=C6-1
+Added Pin To Net: NetName=GND Pin=C7-1
+Added Pin To Net: NetName=VBAT Pin=C7-2
+Added Pin To Net: NetName=GND Pin=C8-1
+Added Pin To Net: NetName=VCC Pin=C8-2
+Added Pin To Net: NetName=VBAT Pin=D3-2
+Added Pin To Net: NetName=GND Pin=UP1-1
+Added Pin To Net: NetName=VCC Pin=UP1-2
+Added Pin To Net: NetName=NetC5_2 Pin=C5-2
+Added Pin To Net: NetName=NetC5_2 Pin=C6-2
+Added Pin To Net: NetName=NetC5_2 Pin=D1-2
+Added Pin To Net: NetName=NetC5_2 Pin=PS1-3
+Added Pin To Net: NetName=NetC5_2 Pin=UP1-3
+Added Net: Name=NetC5_2
+Added Pin To Net: NetName=NetD3_1 Pin=D3-1
+Added Pin To Net: NetName=NetD3_1 Pin=S1-3
+Added Net: Name=NetD3_1
+Added Member To Class: ClassName=ATWork2022 Member=Component C7 100nF
+Added Member To Class: ClassName=ATWork2022 Member=Component C8 0.1uF
+Added Member To Class: ClassName=ATWork2022 Member=Component D3 1n4007
+Add Class Member: Failed to add class member : Component SW1 RESET PB
+Added Member To Class: ClassName=ATWork2022 Member=Component U6 ESP8266-12E/ESP-12E
+Added Member To Class: ClassName=ATWork2022 Member=Component UP1 3V3
+Added Room: Name=ATWork2022

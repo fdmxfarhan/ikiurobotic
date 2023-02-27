@@ -1,0 +1,13 @@
+Added Pin To Net: NetName=INA2 Pin=U5-21
+Added Pin To Net: NetName=INB2 Pin=U5-22
+Added Pin To Net: NetName=INA3 Pin=U5-25
+Added Pin To Net: NetName=INB3 Pin=U5-26
+Added Pin To Net: NetName=INA4 Pin=U5-27
+Added Pin To Net: NetName=INB4 Pin=U5-28
+Added Pin To Net: NetName=INA1 Pin=U5-40
+Added Pin To Net: NetName=INB1 Pin=U5-41
+Added Pin To Net: NetName=PWM1 Pin=U5-42
+Added Pin To Net: NetName=PWM2 Pin=U5-43
+Added Pin To Net: NetName=PWM3 Pin=U5-45
+Added Pin To Net: NetName=PWM4 Pin=U5-46
+Added Room: Name=ATWork2022

@@ -1,0 +1,29 @@
+Added Pin To Net: NetName=Net_1 Pin=-1
+Added Pin To Net: NetName=Net_1 Pin=-25
+Added Pin To Net: NetName=Net_1 Pin=-30
+Added Pin To Net: NetName=Net_1 Pin=-HS2
+Added Net: Name=Net_1
+Add Net: Net with name "Net_4" already exists
+Add Net: Net with name "Net_4" already exists
+Add Net: Net with name "Net_4" already exists
+Add Net: Net with name "Net_5" already exists
+Add Net: Net with name "Net_5" already exists
+Add Net: Net with name "Net_5" already exists
+Add Net: Net with name "Net_7" already exists
+Add Net: Net with name "Net_7" already exists
+Add Net: Net with name "Net_7" already exists
+Add Net: Net with name "Net_9" already exists
+Add Net: Net with name "Net_9" already exists
+Add Net: Net with name "Net_9" already exists
+Add Net: Net with name "Net_10" already exists
+Add Net: Net with name "Net_10" already exists
+Add Net: Net with name "Net_10" already exists
+Added Pin To Net: NetName=Net_15 Pin=-15
+Added Pin To Net: NetName=Net_15 Pin=-16
+Added Pin To Net: NetName=Net_15 Pin=-21
+Added Pin To Net: NetName=Net_15 Pin=-HS3
+Added Net: Name=Net_15
+Added Member To Class: ClassName=ATWork2022 Member=Component  VNH5019A-E
+Added Member To Class: ClassName=ATWork2022 Member=Component  VNH5019A-E
+Added Member To Class: ClassName=ATWork2022 Member=Component  VNH5019A-E
+Added Room: Name=ATWork2022

@@ -1,0 +1,9 @@
+Removed Pin From Net: NetName=VCC Pin=GY-25-1
+Removed Pin From Net: NetName=UART2_TX Pin=GY-25-2
+Removed Pin From Net: NetName=UART2_RX Pin=GY-25-3
+Removed Pin From Net: NetName=GND Pin=GY-25-4
+Add Component: Footprint Not Found RESC3413X04N
+Add Pin To Net: Unknown Pin: Pin R?-1
+Add Pin To Net: Unknown Pin: Pin R?-2
+Add Class Member: Failed to add class member : Component R? 1K
+Added Room: Name=ATWork2022

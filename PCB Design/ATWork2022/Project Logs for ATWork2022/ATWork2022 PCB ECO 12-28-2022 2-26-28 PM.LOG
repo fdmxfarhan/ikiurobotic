@@ -1,0 +1,49 @@
+Added Component: Designator=R23(RESC3413X04N)
+Add component (AddParameter): Name = "Data"; Value = "16-12-2016"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Desc."; Value = "RES SMD 0805"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Designer"; Value = "Abbas Basereh"; VariantName = "[No Variations]"
+Added Component: Designator=R24(RESC3413X04N)
+Add component (AddParameter): Name = "Data"; Value = "16-12-2016"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Desc."; Value = "RES SMD 0805"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Designer"; Value = "Abbas Basereh"; VariantName = "[No Variations]"
+Added Component: Designator=SW1(SW_147873-1)
+Add component (AddParameter): Name = "Availability"; Value = "Unavailable"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "MF"; Value = "TE Connectivity"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "MP"; Value = "147873-1"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Package"; Value = "None"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Price"; Value = "None"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "SnapEDA_Link"; Value = "https://www.snapeda.com/parts/147873-1/TE%20Connectivity%20ALCOSWITCH%20Switches/view-part/2549694/?ref=snap"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Value"; Value = ""; VariantName = "[No Variations]"
+Added Component: Designator=SW2(SW_147873-1)
+Add component (AddParameter): Name = "Availability"; Value = "Unavailable"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "MF"; Value = "TE Connectivity"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "MP"; Value = "147873-1"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Package"; Value = "None"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Price"; Value = "None"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "SnapEDA_Link"; Value = "https://www.snapeda.com/parts/147873-1/TE%20Connectivity%20ALCOSWITCH%20Switches/view-part/2549694/?ref=snap"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Value"; Value = ""; VariantName = "[No Variations]"
+Added Pin To Net: NetName=GND Pin=R23-1
+Added Pin To Net: NetName=VCC Pin=R24-1
+Added Pin To Net: NetName=GND Pin=SW1-2
+Added Pin To Net: NetName=VCC Pin=SW2-2
+Added Pin To Net: NetName=GND Pin=U5-8
+Added Pin To Net: NetName=VCC Pin=U5-9
+Added Pin To Net: NetName=GND Pin=U5-23
+Added Pin To Net: NetName=VCC Pin=U5-24
+Added Pin To Net: NetName=GND Pin=U5-35
+Added Pin To Net: NetName=VCC Pin=U5-36
+Added Pin To Net: NetName=GND Pin=U5-47
+Added Pin To Net: NetName=VCC Pin=U5-48
+Added Pin To Net: NetName=BOOT0 Pin=R23-2
+Added Pin To Net: NetName=BOOT0 Pin=SW2-1
+Added Pin To Net: NetName=BOOT0 Pin=U5-44
+Added Net: Name=BOOT0
+Added Pin To Net: NetName=NRST Pin=R24-2
+Added Pin To Net: NetName=NRST Pin=SW1-1
+Added Pin To Net: NetName=NRST Pin=U5-7
+Added Net: Name=NRST
+Added Member To Class: ClassName=ATWork2022 Member=Component R23 1K
+Added Member To Class: ClassName=ATWork2022 Member=Component R24 1K
+Added Member To Class: ClassName=ATWork2022 Member=Component SW1 RESET
+Added Member To Class: ClassName=ATWork2022 Member=Component SW2 RESET
+Added Room: Name=ATWork2022
