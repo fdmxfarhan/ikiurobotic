@@ -1,9 +1,0 @@
-../Core/Src/main.c:64:6:motor	24	static
-../Core/Src/main.c:111:6:stop	8	static
-../Core/Src/main.c:114:6:move	16	static
-../Core/Src/main.c:130:5:main	16	static
-../Core/Src/main.c:209:6:SystemClock_Config	72	static
-../Core/Src/main.c:246:13:MX_TIM4_Init	48	static
-../Core/Src/main.c:307:13:MX_USART1_UART_Init	8	static
-../Core/Src/main.c:340:13:MX_GPIO_Init	40	static
-../Core/Src/main.c:393:6:Error_Handler	4	static,ignoring_inline_asm

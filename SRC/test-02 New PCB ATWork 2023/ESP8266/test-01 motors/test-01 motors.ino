@@ -11,7 +11,7 @@
 const char* ssid     = STASSID;
 const char* password = STAPSK;
 
-const char* host = "192.168.190.148";
+const char* host = "192.168.123.148";
 const uint16_t port = 3000;
 
 ESP8266WiFiMulti WiFiMulti;
@@ -48,36 +48,11 @@ void loop() {
   digitalWrite(2,0);
   if(client.available()){
     rec = client.read();
-  //  if(rec == 'M'){
-  //    Serial.print(rec);
-  //    for(int i = 0; i < 19; i++){
-  //      rec = client.read();
-  //      Serial.print(rec);
-  //    }
-  //    Serial.print('\n');
-  //    while(1){
-  //      if(Serial.available() > 0){
-  //        if(Serial.read() == 'N') break;
-  //      }
-  //    }
-  //    client.print('N');
-  //  }
-    // if(rec == 'f'){
-    //   client.print(srf(12));
-    // }
-    // else if(rec == 'b'){
-    //   client.print(srf(13));
-    // }
-    // else if(rec == 'l'){
-    //   client.print(srf(14));
-    // }
-    // else if(rec == 'r'){
-    //   client.print(srf(16));
-    // }
     Serial.print(rec);
   }
   if(Serial.available() > 0){
-    if(Serial.read() == 'N') client.print('N');
+    rec = Serial.read();
+    client.print(rec);
   }
   
 }
