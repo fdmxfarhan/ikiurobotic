@@ -234,7 +234,7 @@ void getDistances(){
 	srf_cnt = 0;
 	while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1) == 0);
 	while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1) == 1) srf_cnt++;
-	Front_Dist = srf_cnt/30;
+	Front_Dist = srf_cnt/52;
 
 	pinMode(1);
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 1);
@@ -244,7 +244,7 @@ void getDistances(){
 	srf_cnt = 0;
 	while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4) == 0);
 	while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4) == 1) srf_cnt++;
-	Right_Dist = srf_cnt/30;
+	Right_Dist = srf_cnt/52;
 
 	pinMode(1);
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
@@ -254,7 +254,7 @@ void getDistances(){
 	srf_cnt = 0;
 	while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_5) == 0);
 	while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_5) == 1) srf_cnt++;
-	Back_Dist = srf_cnt/30;
+	Back_Dist = srf_cnt/52;
 
 	pinMode(1);
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, 1);
@@ -264,7 +264,7 @@ void getDistances(){
 	srf_cnt = 0;
 	while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6) == 0);
 	while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6) == 1) srf_cnt++;
-	Left_Dist = srf_cnt/30;
+	Left_Dist = srf_cnt/52;
 }
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 	if(huart->Instance == USART1){
@@ -399,19 +399,19 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  K_P = Heading 		* 1.0;
+	  K_P = Heading;
 	  if(HAL_GetTick() - Last_Time > 1000){
 		  if(Heading == 0) {
 			  K_I = 0;
 			  K_D = 0;
 		  }else{
-			  K_I = (K_I + Heading) * 1.0;
-			  K_D = (Heading - Last_Heading) * 1.0;
+			  K_I = (K_I + Heading);
+			  K_D = (Heading - Last_Heading);
 		  }
 		  Last_Time = HAL_GetTick();
 		  Last_Heading = Heading;
 	  }
-	  correction = K_P + K_I + K_D;
+	  correction = 2.1 * K_P + 0.43 * K_I + 0.0 * K_D;
 
 	  if(Correction_EN == 1)
 		  motor(l1 + correction, l2 + correction, r2 + correction, r1 + correction);

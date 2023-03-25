@@ -37,7 +37,7 @@
             "includePath": [
                 "C:\\Users\\Farhan\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.0.2\\tools\\sdk\\include",
                 "C:\\Users\\Farhan\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.0.2\\tools\\sdk\\lwip2\\include",
-                "C:\\Users\\Farhan\\AppData\\Local\\Temp\\arduino\\sketch-CC9CC343B8068FD4094BAA5B399D68C5\\core",
+                "C:\\Users\\Farhan\\AppData\\Local\\Temp\\arduino\\sketches\\CC9CC343B8068FD4094BAA5B399D68C5\\core",
                 "C:\\Users\\Farhan\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.0.2\\cores\\esp8266",
                 "C:\\Users\\Farhan\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.0.2\\variants\\generic",
                 "C:\\Users\\Farhan\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.0.2\\libraries\\ESP8266WiFi\\src",

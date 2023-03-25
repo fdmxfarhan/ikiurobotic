@@ -7,7 +7,7 @@ import time
 speed = 50
 
 
-HOST = '192.168.25.148'
+HOST = '192.168.147.148'
 PORT = 3000
 clientConnected  = False
 socket.setdefaulttimeout(3)
@@ -29,6 +29,7 @@ backDist  = 0
 rightDist = 0
 leftDist  = 0
 getDistEN = False
+AIStarted = False
 
 root = Tk()
 root.geometry("900x700")
@@ -37,7 +38,10 @@ cap= cv2.VideoCapture(0)
 imgLable = Label(frame)
 speedLabelVar = StringVar()
 clientLabelVar = StringVar()
-
+frontDistLabelVar = StringVar()
+backDistLabelVar = StringVar()
+rightDistLabelVar = StringVar()
+leftDistLabelVar = StringVar()
 
 
 def motor(ml1, ml2, mr2, mr1, d=0):
@@ -72,9 +76,9 @@ def motor(ml1, ml2, mr2, mr1, d=0):
         b.append(-ml1)
     client.send(b)
 def keydown(e):
-    global keyHold
+    global keyHold, AIStarted
     if not keyHold:
-        if(e.char == 'z'): motor(speed, 0, 0, 0)
+        if(e.char == 'z'): AIStarted = not AIStarted
 
         if(e.char == 'w'): motor(speed, speed, -speed, -speed)
         if(e.char == 's'): motor(-speed, -speed, speed, speed)
@@ -97,7 +101,7 @@ def show_frames():
    imgtk = ImageTk.PhotoImage(image = img)
    imgLable.imgtk = imgtk
    imgLable.configure(image=imgtk)
-   imgLable.after(100, show_frames)
+   imgLable.after(10, show_frames)
 def move(direction):
     global speed
     if(direction == 0 ):     motor(speed   , speed   , -speed  , -speed   )
@@ -158,18 +162,47 @@ def toggleCorrection():
         return
     client.send(b'CT0000000')
 def updateDistances():
+    global frontDist, backDist, rightDist, leftDist
     if clientConnected: 
         client.send(b'DALL00000')
         try:
             rec = client.recv(100)
-
-            print(frontDist)
+            if len(rec) == 8:
+                frontDist = (rec[0] << 8) | rec[1]
+                backDist  = (rec[4] << 8) | rec[5]
+                rightDist = (rec[2] << 8) | rec[3]
+                leftDist  = (rec[6] << 8) | rec[7]
         except:
-            print('Failed to recieve data')
-    frame.after(1000, updateDistances)
+            pass
+            # print('Failed to recieve data')
+    updateDistText()
+    # frame.after(100, updateDistances)
+def updateDistText():
+    global frontDist, backDist, rightDist, leftDist
+    frontDistLabelVar.set('front: ' + str(frontDist) + 'cm')
+    backDistLabelVar.set('back: ' + str(backDist) + 'cm')
+    rightDistLabelVar.set('right: ' + str(rightDist) + 'cm')
+    leftDistLabelVar.set('left: ' + str(leftDist) + 'cm')
 
+######################## AI Begin
+
+arrived = False
+def robotMainSetup():
+    arrived = False
+def robotMainLoop():
+    global AIStarted, frontDist, backDist, rightDist, leftDist, moving
+    # updateDistances()
+    if AIStarted:
+        if leftDist > 30:
+            move_left()
+        else:
+            stop()
+    frame.after(500, robotMainLoop)
+
+######################## AI End
 
 speedLabelVar.set('speed: ' + str(speed))
+updateDistText()
 if(clientConnected): clientLabelVar.set('Connected')
 else:                clientLabelVar.set('Disonnected')
 wButton = Button(frame, text =" W ", command = move_forward)
@@ -186,10 +219,15 @@ correctionButton  = Button(frame, text =" Toggle Correction ", command = toggleC
 
 speedLabel  = Label(frame, textvariable = speedLabelVar)
 clientLabel  = Label(frame, textvariable = clientLabelVar)
+frontDistLabel  = Label(frame, textvariable = frontDistLabelVar)
+backDistLabel   = Label(frame, textvariable = backDistLabelVar)
+rightDistLabel  = Label(frame, textvariable = rightDistLabelVar)
+leftDistLabel   = Label(frame, textvariable = leftDistLabelVar)
 
 
 show_frames()
-# updateDistances()
+robotMainSetup()
+robotMainLoop()
 frame.bind("<KeyPress>", keydown)
 frame.bind("<KeyRelease>", keyup)
 wButton.place(x=45, y=520)
@@ -203,11 +241,16 @@ plusButton.place(x = 360, y = 520)
 minusButton.place(x = 260, y = 520)
 correctionButton.place(x=210, y=560)
 
+
 imgLable.place(x=10, y=15)
 
 connectButton.place(x=750, y=15)
 disconnectButton.place(x=820, y=15)
 clientLabel.place(x=660, y=18)
+frontDistLabel.place(x=660, y=70)
+backDistLabel.place(x=660, y=90)
+rightDistLabel.place(x=660, y=110)
+leftDistLabel.place(x=660, y=130)
 
 frame.pack()
 frame.focus_set()
