@@ -6,12 +6,13 @@
 #define STAPSK  "123456789"
 #endif
 
-#define Name "light"
+#define Name "MOV"
+// #define Name "ARM"
 
 const char* ssid     = STASSID;
 const char* password = STAPSK;
 
-const char* host = "192.168.147.148";
+const char* host = "192.168.158.148";
 const uint16_t port = 3000;
 
 ESP8266WiFiMulti WiFiMulti;
@@ -48,7 +49,9 @@ void loop() {
   digitalWrite(2,0);
   if(client.available()){
     rec = client.read();
-    Serial.print(rec);
+    if(rec == '?'){
+      client.print(Name);
+    }else Serial.print(rec);
   }
   if(Serial.available() > 0){
     rec = Serial.read();
