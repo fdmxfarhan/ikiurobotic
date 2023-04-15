@@ -144,7 +144,6 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 		if(Rx2_Buff[0] == 'S' && Rx2_Buff[1] == 'T'){
 			set_step_front();
 		}
-
 		HAL_UARTEx_ReceiveToIdle_DMA(&huart2, Rx2_Buff, RX2_Size);
 		__HAL_DMA_DISABLE_IT(&hdma_usart2_rx, DMA_IT_HT);
 	}

@@ -451,7 +451,6 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 			set_step_front();
  80003dc:	f7ff fee2 	bl	80001a4 <set_step_front>
 		}
-
 		HAL_UARTEx_ReceiveToIdle_DMA(&huart2, Rx2_Buff, RX2_Size);
  80003e0:	2205      	movs	r2, #5
  80003e2:	490a      	ldr	r1, [pc, #40]	; (800040c <HAL_UARTEx_RxEventCallback+0xbc>)
