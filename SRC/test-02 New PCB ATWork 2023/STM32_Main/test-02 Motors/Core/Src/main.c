@@ -78,6 +78,7 @@ int counter = 0;
 int correction = 0;
 float K_P, K_I, K_D;
 int Correction_EN = 1;
+char look_direction = 'N';
 uint32_t Front_Dist=0, Back_Dist=0, Right_Dist=0, Left_Dist=0, srf_cnt=0;
 
 uint8_t GY_A5[] = {0xA5};
@@ -308,6 +309,9 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 				HAL_UART_Transmit(&huart1, tx_data, 8, PHY_FULLDUPLEX_10M);
 			}
 		}
+		else if(Rx1_Buff[0] == 'P') {
+			look_direction = Rx1_Buff[1];
+		}
 		RED_OFF;
 		HAL_UARTEx_ReceiveToIdle_DMA(&huart1, Rx1_Buff, RX1_Size);
 		__HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
@@ -319,6 +323,19 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 				Heading = (int16_t)(Rx2_Buff[(i+1)%8]<<8 | Rx2_Buff[(i+2)%8])/100.00;
 				Pitch = (int16_t)(Rx2_Buff[(i+3)%8]<<8 | Rx2_Buff[(i+4)%8])/100.00;
 				Roll = (int16_t)(Rx2_Buff[(i+5)%8]<<8 | Rx2_Buff[(i+6)%8])/100.00;
+
+				if(look_direction == 'W'){
+					Heading += 90;
+				}
+				if(look_direction == 'E'){
+					Heading -= 90;
+				}
+				if(look_direction == 'S'){
+					if(Heading > 0) Heading = Heading - 180;
+					else		    Heading = Heading + 180;
+				}
+				if(Heading > 180) Heading -= 180;
+				if(Heading <-180) Heading += 180;
 			}
 		}
 		GREEN_OFF;
@@ -399,6 +416,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
 	  K_P = Heading;
 	  if(HAL_GetTick() - Last_Time > 1000){
 		  if(Heading == 0) {
@@ -412,6 +430,8 @@ int main(void)
 		  Last_Heading = Heading;
 	  }
 	  correction = 2.1 * K_P + 0.43 * K_I + 0.0 * K_D;
+
+
 
 	  if(Correction_EN == 1)
 		  motor(l1 + correction, l2 + correction, r2 + correction, r1 + correction);

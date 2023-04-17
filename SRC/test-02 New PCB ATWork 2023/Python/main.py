@@ -7,7 +7,7 @@ import time
 speed = 50
 
 
-HOST = '192.168.157.148'
+HOST = '192.168.56.148'
 PORT = 3000
 MovConnected  = False
 ArmConnected  = False
@@ -287,7 +287,18 @@ def set_step_home():
         print('ARM Node Not Connected !!')
         return
     ArmClient.send(b'ST')
-
+def Nbutton_call_back():
+    MovClient.send(b'PN000000')
+    time.sleep(0.01)
+def Wbutton_call_back():
+    MovClient.send(b'PW000000')
+    time.sleep(0.01)
+def Sbutton_call_back():
+    MovClient.send(b'PS000000')
+    time.sleep(0.01)
+def Ebutton_call_back():
+    MovClient.send(b'PE000000')
+    time.sleep(0.01)
 ######################## AI Begin
 
 arrived = False
@@ -341,6 +352,14 @@ StateLabel.config(fg='green')
 plusButton  = Button(frame, text =" + ", command = increaseSpeed)
 minusButton = Button(frame, text =" - ", command = decreaseSpeed)
 
+NButton  = Button(frame, text =" N ", command = Nbutton_call_back)
+WButton  = Button(frame, text =" W ", command = Wbutton_call_back)
+SButton  = Button(frame, text =" S ", command = Sbutton_call_back)
+EButton  = Button(frame, text =" E ", command = Ebutton_call_back)
+
+
+
+
 correctionButton  = Button(frame, text =" Toggle Correction ", command = toggleCorrection)
 speedLabel  = Label(frame, textvariable = speedLabelVar)
 frontDistLabel  = Label(frame, textvariable = frontDistLabelVar)
@@ -364,6 +383,13 @@ speedLabel.place(x = 290, y = 520)
 plusButton.place(x = 360, y = 520)
 minusButton.place(x = 260, y = 520)
 correctionButton.place(x=210, y=560)
+
+
+NButton.place(x=500, y=520)
+WButton.place(x=475, y=560)
+SButton.place(x=505, y=560)
+EButton.place(x=535, y=600)
+
 
 
 imgLable.place(x=10, y=15)
