@@ -325,10 +325,10 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 				Roll = (int16_t)(Rx2_Buff[(i+5)%8]<<8 | Rx2_Buff[(i+6)%8])/100.00;
 
 				if(look_direction == 'W'){
-					Heading += 90;
+					Heading -= 90;
 				}
 				if(look_direction == 'E'){
-					Heading -= 90;
+					Heading += 90;
 				}
 				if(look_direction == 'S'){
 					if(Heading > 0) Heading = Heading - 180;
@@ -429,8 +429,8 @@ int main(void)
 		  Last_Time = HAL_GetTick();
 		  Last_Heading = Heading;
 	  }
-	  correction = 2.1 * K_P + 0.43 * K_I + 0.0 * K_D;
-
+	  // correction = 2.1 * K_P + 0.43 * K_I + 0.0 * K_D;
+	  correction = 1 * K_P + 0.9 * K_I + 0.1 * K_D;
 
 
 	  if(Correction_EN == 1)

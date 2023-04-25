@@ -7,7 +7,7 @@ import time
 speed = 50
 
 
-HOST = '192.168.56.148'
+HOST = '192.168.60.148'
 PORT = 3000
 MovConnected  = False
 ArmConnected  = False
@@ -83,10 +83,11 @@ def keydown(e):
             if AIStarted:   
                 StateLabelVar.set('AI')
                 StateLabel.config(fg='red')
+                robotMainSetup()
             else:           
                 StateLabelVar.set('Manual')
                 StateLabel.config(fg='green')
-            robotMainSetup()
+            
         if(e.char == 'w'): motor(speed, speed, -speed, -speed)
         if(e.char == 's'): motor(-speed, -speed, speed, speed)
         if(e.char == 'd'): motor(speed, -speed, -speed, speed)
@@ -288,15 +289,23 @@ def set_step_home():
         return
     ArmClient.send(b'ST')
 def Nbutton_call_back():
+    if not MovConnected: 
+        return
     MovClient.send(b'PN000000')
     time.sleep(0.01)
 def Wbutton_call_back():
+    if not MovConnected: 
+        return
     MovClient.send(b'PW000000')
     time.sleep(0.01)
 def Sbutton_call_back():
+    if not MovConnected: 
+        return
     MovClient.send(b'PS000000')
     time.sleep(0.01)
 def Ebutton_call_back():
+    if not MovConnected: 
+        return
     MovClient.send(b'PE000000')
     time.sleep(0.01)
 ######################## AI Begin
@@ -306,17 +315,26 @@ moving = False
 def robotMainSetup():
     arrived = False
     moving = False
+    move_forward()
+    time.sleep(5)
+    stop()
+    time.sleep(1)
+    Ebutton_call_back()
+    time.sleep(6)
+    move_forward()
+    time.sleep(7)
+    stop() 
 def robotMainLoop():
     global AIStarted, frontDist, backDist, rightDist, leftDist, moving
     if AIStarted:
         updateDistances()
-        if backDist > 60:
-            if not moving: 
-                move_backward()
-                moving = True
-        else:
-            stop()
-            moving = False
+        # if backDist > 60:
+        #     if not moving: 
+        #         move_backward()
+        #         moving = True
+        # else:
+        #     stop()
+        #     moving = False
     else:
         pass
     frame.after(500, robotMainLoop)
@@ -369,7 +387,7 @@ leftDistLabel   = Label(frame, textvariable = leftDistLabelVar)
 
 
 show_frames()
-robotMainSetup()
+# robotMainSetup()
 robotMainLoop()
 frame.bind("<KeyPress>", keydown)
 frame.bind("<KeyRelease>", keyup)
@@ -386,9 +404,9 @@ correctionButton.place(x=210, y=560)
 
 
 NButton.place(x=500, y=520)
-WButton.place(x=475, y=560)
-SButton.place(x=505, y=560)
-EButton.place(x=535, y=600)
+WButton.place(x=469, y=550)
+SButton.place(x=500, y=580)
+EButton.place(x=530, y=550)
 
 
 
