@@ -7,7 +7,7 @@ import time
 speed = 50
 
 
-HOST = '192.168.60.148'
+HOST = '192.168.124.148'
 PORT = 3000
 MovConnected  = False
 ArmConnected  = False
@@ -315,14 +315,6 @@ moving = False
 def robotMainSetup():
     arrived = False
     moving = False
-    move_forward()
-    time.sleep(5)
-    stop()
-    time.sleep(1)
-    Ebutton_call_back()
-    time.sleep(6)
-    move_forward()
-    time.sleep(7)
     stop() 
 def robotMainLoop():
     global AIStarted, frontDist, backDist, rightDist, leftDist, moving
