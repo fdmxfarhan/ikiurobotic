@@ -446,12 +446,13 @@ int main(void)
 	  if(thetaD < -180) thetaD = thetaD + 360;
 
 	  K_P = Heading_f;
-	  if(HAL_GetTick() - Last_Time > 100){
+	  if(HAL_GetTick() - Last_Time >= 100){
 		  if(Heading == 0) {
+        
 			  K_I = 0;
 			  K_D = 0;
 		  }else{
-			  K_I = (K_I + Heading_f) * 0.1;
+			  K_I =( (Heading_f) * (0.1))+K_I ;
 			  K_D = (Heading_f - Last_Heading)/0.1;
 		  }
 		  Last_Time = HAL_GetTick();
