@@ -440,7 +440,7 @@ int main(void)
   {
 	  time = (HAL_GetTick() - beginTime)/1000.0;
 
-	  thetaD = 5 * sin(time*0.2);
+	  thetaD = 30 * sin(time*0.2);
 
 	  if(thetaD >  180) thetaD = thetaD - 360;
 	  if(thetaD < -180) thetaD = thetaD + 360;
@@ -448,7 +448,6 @@ int main(void)
 	  K_P = Heading_f;
 	  if(HAL_GetTick() - Last_Time >= 100){
 		  if(Heading == 0) {
-        
 			  K_I = 0;
 			  K_D = 0;
 		  }else{
