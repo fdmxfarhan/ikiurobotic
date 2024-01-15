@@ -365,7 +365,13 @@ float u(float t){
 	if(t > 0)	return 1;
 	return 0;
 }
-
+double chirp(double t) {
+	double s = 0;
+	for(int i=1; i<100; i++){
+		s += (1.0/(i*M_PI))*cos(2.0 * i * M_PI * t + M_PI/2.0);
+	}
+	return 0.5 + s;
+}
 /* USER CODE END 0 */
 
 /**
@@ -440,7 +446,8 @@ int main(void)
   {
 	  time = (HAL_GetTick() - beginTime)/1000.0;
 
-	  thetaD = 30 * sin(time*0.2);
+//	  thetaD = 50 * sin(time*2.0);
+	  thetaD = 50 * chirp(time * 0.1);
 
 	  if(thetaD >  180) thetaD = thetaD - 360;
 	  if(thetaD < -180) thetaD = thetaD + 360;
