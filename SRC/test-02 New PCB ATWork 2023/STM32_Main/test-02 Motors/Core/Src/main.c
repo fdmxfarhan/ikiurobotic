@@ -439,7 +439,6 @@ int main(void)
 		  motor(l1, l2, r2, r1);
 
 
-
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
