@@ -7,7 +7,7 @@ import time
 speed = 50
 
 
-HOST = '192.168.46.148'
+HOST = '192.168.253.148'
 PORT = 3000
 MovConnected  = False
 ArmConnected  = False
