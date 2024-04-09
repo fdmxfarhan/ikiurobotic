@@ -1,6 +1,7 @@
 import cv2
-from ultralytics import YOLO
-from ultralytics.models.yolo.detect.predict import DetectionPredictor
+import requests
+# from ultralytics import YOLO
+# from ultralytics.models.yolo.detect.predict import DetectionPredictor
 
 # Distance constants
 KNOWN_DISTANCE = 40.0 #Cm
@@ -10,7 +11,7 @@ MOBILE_WIDTH = 8.0 #Cm
 CONFIDENCE_THRESHOLD = 0.4
 NMS_THRESHOLD = 0.3
 
-# colors for object detected
+# colors for object detection and texts
 COLORS = [(255,0,0),(255,0,255),(0, 255, 255), (255, 255, 0), (0, 255, 0), (255, 0, 0)]
 RED = (0,0,255)
 GREEN = (0,255,0)
@@ -58,18 +59,19 @@ def distance_finder(focal_length, real_object_width, width_in_frmae):
     distance = (real_object_width * focal_length) / width_in_frmae
     return distance
 
-# reading the reference image from dir
+# reading the reference image and finging focal length
 ref_mobile = cv2.imread('RefImages/image3.png')
 mobile_data = object_detector(ref_mobile)
 mobile_width_in_rf = mobile_data[0][1]
 print(f"mobile width in pixel: {mobile_width_in_rf}")
-
-# finding focal length
 focal_mobile = focal_length_finder(KNOWN_DISTANCE, MOBILE_WIDTH, mobile_width_in_rf)
-cap = cv2.VideoCapture(0)
-while True:
-    ret, frame = cap.read()
 
+# Connection to Ip webcam and
+url_cap = "http://192.168.62.215:8080"
+frame_cap = cv2.VideoCapture(url_cap + "/video")
+# frame_cap = cv2.VideoCapture(0)
+while True:
+    ret, frame = frame_cap.read()
     data = object_detector(frame)
     for d in data:
         if d[0] == 'cell phone':
@@ -79,11 +81,10 @@ while True:
         cv2.rectangle(frame, (x, y - 3), (x + 150, y + 23), BLACK, -1)
         cv2.putText(frame, f'Dis: {round(distance, 2)} Cm', (x + 5, y + 13), FONTS, 0.38, RED, 1)
 
-    cv2.imshow('frame', frame)
+    cv2.imshow("frame", frame)
 
-    key = cv2.waitKey(1)
-    if key == ord('q'):
+    if cv2.waitKey(1) == ord('q'):
         break
         
 cv2.destroyAllWindows()
-cap.release()
+frame_cap.release()
