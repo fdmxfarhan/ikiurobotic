@@ -44,6 +44,8 @@
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 
+UART_HandleTypeDef huart2;
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -54,20 +56,33 @@ static void MX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+#define LED_ON    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, 0)
+#define LED_OFF   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, 1)
+
 #define MAX_SPEED 40000
+
+#define RX2_Size 5
+uint8_t Rx2_Buff[RX2_Size];
 
 uint32_t Motor1_FB = 0;
 uint32_t Motor2_FB = 0;
+uint32_t Motor3_FB = 0;
+int Motor4_FB = 0;
 int Motor1_SP = 500;
 int Motor2_SP = 2400;
+int Motor3_SP = 2400;
+int Motor4_SP = -50;
 int error1 = 0;
 int error2 = 0;
+int error3 = 0;
+int error4 = 0;
 int start_time;
 int count_grip = 0;
 
@@ -88,12 +103,12 @@ void motor1(int v){
 	if(v < -MAX_SPEED)  v = -MAX_SPEED;
 	// ------------- Motor L1
 	if(v >= 0){
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, 0);
-		TIM4->CCR2 = v;
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, 0);
+		TIM4->CCR3 = v;
 	}
 	else{
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, 1);
-		TIM4->CCR2 = v+65535;
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, 1);
+		TIM4->CCR3 = v+65535;
 	}
 }
 void motor2(int v){
@@ -101,15 +116,51 @@ void motor2(int v){
 	if(v < -MAX_SPEED)  v = -MAX_SPEED;
 	// ------------- Motor L1
 	if(v >= 0){
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, 0);
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, 0);
 		TIM4->CCR4 = v;
 	}
 	else{
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, 1);
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, 1);
 		TIM4->CCR4 = v+65535;
 	}
 }
 
+void motor3(int v){
+	if(v >  MAX_SPEED)  v =  MAX_SPEED;
+	if(v < -MAX_SPEED)  v = -MAX_SPEED;
+	// ------------- Motor L1
+	if(v >= 0){
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, 0);
+		TIM4->CCR2 = v;
+	}
+	else{
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, 1);
+		TIM4->CCR2 = v+65535;
+	}
+}
+void motor4(int sp){
+	if(sp < Motor4_FB){
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, 0); // ENA
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 0); // DIR
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 1); // PUL
+		HAL_Delay(5);
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 0); // PUL
+		HAL_Delay(5);
+		Motor4_FB--;
+	}else if(sp > Motor4_FB){
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, 0); // ENA
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1); // DIR
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 1); // PUL
+		HAL_Delay(5);
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 0); // PUL
+		HAL_Delay(5);
+		Motor4_FB++;
+	}else{
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1); // DIR
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, 1); // ENA
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 1); // PUL
+	}
+}
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   if(GPIO_Pin == GPIO_PIN_0) {
@@ -127,6 +178,31 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	  }
 	  else motor1(0);
   }
+}
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
+	LED_ON;
+	if(huart->Instance == USART2){
+		if(Rx2_Buff[0] == 'A') {
+		  Motor1_SP = (int)Rx2_Buff[1];
+		  ////////////////
+		  Motor2_SP = (int)Rx2_Buff[2];
+		  ////////////////
+		  Motor3_SP = (int)Rx2_Buff[3];
+		  ////////////////
+		  Motor4_SP = (int)Rx2_Buff[4];
+		}
+		if(Rx2_Buff[0] == 'R') {
+			int8_t tx_data[] = {
+				(uint8_t) Motor1_FB  >> 8, (uint8_t) Motor1_FB  & 0xFF,
+				(uint8_t) Motor2_FB  >> 8, (uint8_t) Motor2_FB  & 0xFF,
+				(uint8_t) Motor3_FB  >> 8, (uint8_t) Motor3_FB  & 0xFF,
+				(uint8_t) Motor4_FB  >> 8, (uint8_t) Motor4_FB  & 0xFF
+			};
+			HAL_UART_Transmit(&huart2, tx_data, 8, PHY_FULLDUPLEX_10M);
+		}
+		HAL_UARTEx_ReceiveToIdle_DMA(&huart2, Rx2_Buff, RX2_Size);
+//		__HAL_DMA_DISABLE_IT(&hdma_usart2_rx, DMA_IT_HT);
+	}
 }
 /* USER CODE END 0 */
 
@@ -161,9 +237,11 @@ int main(void)
   MX_ADC1_Init();
   MX_TIM4_Init();
   MX_TIM3_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
 	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2);
+	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3);
 	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_4);
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
@@ -174,57 +252,92 @@ int main(void)
 
 	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, 250);
 	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, 250);
-//	Motor1_SP = 1900;
-//	Motor2_SP = 1300;
+//	  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, 750);
+//	  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, 750);
+
+	///////////////////// default
+	Motor1_SP = 3800;
+	Motor2_SP = 3500;
+	Motor3_SP = 2000;
+
+	///////////////////// Grab
+//	Motor1_SP = 1600;
+//	Motor2_SP = 2100;
+//	Motor3_SP = 1800;
+
 //	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 0); // DIR
 //	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, 0); // ENA
 //	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 0); // PUL
-//	for(int i=0; i<50; i++){
-//		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 1); // PUL
-//		HAL_Delay(10);
-//		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 0); // PUL
-//		HAL_Delay(10);
+//	for(int j = 0; j<10; j++){
+//		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 0); // DIR
+//		for(int i=0; i<50; i++){
+//			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 1); // PUL
+//			HAL_Delay(5);
+//			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 0); // PUL
+//			HAL_Delay(5);
+//		}
+//		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1); // DIR
+//		for(int i=0; i<50; i++){
+//			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 1); // PUL
+//			HAL_Delay(5);
+//			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 0); // PUL
+//			HAL_Delay(5);
+//		}
 //	}
 
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 1); // DIR
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, 1); // ENA
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 1); // PUL
+	motor1(0);
+	motor2(0);
+	motor3(0);
+	HAL_UARTEx_ReceiveToIdle_DMA(&huart2, Rx2_Buff, RX2_Size);
+//  __HAL_DMA_DISABLE_IT(&hdma_usart2_rx, DMA_IT_HT);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  if(HAL_GetTick() - start_time > 20000){
-		  Motor1_SP = 300;
-		  Motor2_SP = 2400;
-		  start_time = HAL_GetTick();
-		  count_grip++;
-	  }
-	  else if(HAL_GetTick() - start_time > 7000){
-		  Motor2_SP = 1300;
-		  if(HAL_GetTick() - start_time > 9000){
-			  Motor1_SP = 2000;
-		  }
-		  if(HAL_GetTick() - start_time > 12000){
-			if(count_grip%2 == 0){
-				__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, 750);
-			}else{
-				__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, 250);
-			}
-		  }
-		  if(HAL_GetTick() - start_time > 15000){
-			  Motor1_SP = 300;
-		  }
-	  }
-	  Motor1_FB = read_adc(5);
-	  Motor2_FB = read_adc(4);
-	  error1 = (Motor1_SP - Motor1_FB)*100;
-	  if(error1 > -10000 && error1 < 10000) error1 = 0;
-	  motor1(error1);
-	  error2 = -(Motor2_SP - Motor2_FB)*90;
-	  if(error2 > -10000 && error2 < 10000) error2 = 0;
-	  motor2(error2);
+
+
+//	  if(HAL_GetTick() - start_time > 20000){
+//		  ///////////////////// default
+//			Motor1_SP = 3800;
+//			Motor2_SP = 3500;
+//			Motor3_SP = 2000;
+//		  start_time = HAL_GetTick();
+//		  count_grip++;
+//	  }
+//	  else if(HAL_GetTick() - start_time > 7000){
+//		  ///////////////////// Grab
+//		  	Motor1_SP = 1600;
+//		  	Motor2_SP = 2100;
+//		  	Motor3_SP = 1800;
+//		  if(HAL_GetTick() - start_time > 12000){
+//			if(count_grip%2 == 0){
+//				__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, 750);
+//			}else{
+//				__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, 250);
+//			}
+//		  }
+//	  }
+	Motor1_FB = read_adc(6);
+	Motor2_FB = read_adc(5);
+	Motor3_FB = read_adc(4);
+	error1 = (Motor1_FB - Motor1_SP)*80;
+	if(error1 > -15000 && error1 < 15000) error1 = 0;
+	motor1(error1);
+
+	error2 = -(Motor2_FB - Motor2_SP)*90;
+	if(error2 > -15000 && error2 < 15000) error2 = 0;
+	motor2(error2);
+
+	error3 = (Motor3_FB - Motor3_SP)*90;
+	if(error3 > -15000 && error3 < 15000) error3 = 0;
+	motor3(error3);
+
+	motor4(Motor4_SP);
 
     /* USER CODE END WHILE */
 
@@ -418,6 +531,10 @@ static void MX_TIM4_Init(void)
   {
     Error_Handler();
   }
+  if (HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
+  {
+    Error_Handler();
+  }
   if (HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
   {
     Error_Handler();
@@ -426,6 +543,39 @@ static void MX_TIM4_Init(void)
 
   /* USER CODE END TIM4_Init 2 */
   HAL_TIM_MspPostInit(&htim4);
+
+}
+
+/**
+  * @brief USART2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART2_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART2_Init 0 */
+
+  /* USER CODE END USART2_Init 0 */
+
+  /* USER CODE BEGIN USART2_Init 1 */
+
+  /* USER CODE END USART2_Init 1 */
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 115200;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART2_Init 2 */
+
+  /* USER CODE END USART2_Init 2 */
 
 }
 
@@ -448,8 +598,8 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_6
-                          |GPIO_PIN_8, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_3
+                          |GPIO_PIN_4|GPIO_PIN_5, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : PC13 */
   GPIO_InitStruct.Pin = GPIO_PIN_13;
@@ -458,10 +608,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PB12 PB13 PB14 PB6
-                           PB8 */
-  GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_6
-                          |GPIO_PIN_8;
+  /*Configure GPIO pins : PB12 PB13 PB14 PB3
+                           PB4 PB5 */
+  GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_3
+                          |GPIO_PIN_4|GPIO_PIN_5;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
