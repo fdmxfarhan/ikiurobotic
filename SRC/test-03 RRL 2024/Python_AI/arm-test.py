@@ -57,7 +57,7 @@ def servo2(angle):
     client.send(b)
     time.sleep(0.1)
 time.sleep(0.1)
-servo1(100)
+servo1(200)
 servo2(200)
 
 motor(3800, 3500, 2000, 0)
