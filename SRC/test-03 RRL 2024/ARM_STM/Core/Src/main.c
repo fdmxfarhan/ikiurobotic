@@ -45,6 +45,7 @@ TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 
 UART_HandleTypeDef huart2;
+DMA_HandleTypeDef hdma_usart2_rx;
 
 /* USER CODE BEGIN PV */
 
@@ -55,8 +56,9 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_TIM4_Init(void);
-static void MX_TIM3_Init(void);
+static void MX_DMA_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -68,7 +70,7 @@ static void MX_USART2_UART_Init(void);
 
 #define MAX_SPEED 40000
 
-#define RX2_Size 5
+#define RX2_Size 9
 uint8_t Rx2_Buff[RX2_Size];
 
 uint32_t Motor1_FB = 0;
@@ -78,7 +80,9 @@ int Motor4_FB = 0;
 int Motor1_SP = 500;
 int Motor2_SP = 2400;
 int Motor3_SP = 2400;
-int Motor4_SP = -50;
+int Motor4_SP = 0;
+int Motor5_SP = 100;
+int Motor6_SP = 100;
 int error1 = 0;
 int error2 = 0;
 int error3 = 0;
@@ -161,6 +165,13 @@ void motor4(int sp){
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 1); // PUL
 	}
 }
+void motor5(int val){
+	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, val);
+}
+void motor6(int val){
+	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, val);
+}
+
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   if(GPIO_Pin == GPIO_PIN_0) {
@@ -183,13 +194,21 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 	LED_ON;
 	if(huart->Instance == USART2){
 		if(Rx2_Buff[0] == 'A') {
-		  Motor1_SP = (int)Rx2_Buff[1];
+		  Motor1_SP = Rx2_Buff[1]*255 + Rx2_Buff[2];
 		  ////////////////
-		  Motor2_SP = (int)Rx2_Buff[2];
+		  Motor2_SP = Rx2_Buff[3]*255 + Rx2_Buff[4];
 		  ////////////////
-		  Motor3_SP = (int)Rx2_Buff[3];
+		  Motor3_SP = Rx2_Buff[5]*255 + Rx2_Buff[6];
 		  ////////////////
-		  Motor4_SP = (int)Rx2_Buff[4];
+		  Motor4_SP = Rx2_Buff[7]*255 + Rx2_Buff[8];
+		}
+		if(Rx2_Buff[0] == 'S') {
+			if(Rx2_Buff[1] == '1') {
+				Motor5_SP = Rx2_Buff[2]*255 + Rx2_Buff[3];
+			}
+			if(Rx2_Buff[1] == '2') {
+				Motor6_SP = Rx2_Buff[2]*255 + Rx2_Buff[3];
+			}
 		}
 		if(Rx2_Buff[0] == 'R') {
 			int8_t tx_data[] = {
@@ -201,7 +220,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 			HAL_UART_Transmit(&huart2, tx_data, 8, PHY_FULLDUPLEX_10M);
 		}
 		HAL_UARTEx_ReceiveToIdle_DMA(&huart2, Rx2_Buff, RX2_Size);
-//		__HAL_DMA_DISABLE_IT(&hdma_usart2_rx, DMA_IT_HT);
+		__HAL_DMA_DISABLE_IT(&hdma_usart2_rx, DMA_IT_HT);
 	}
 }
 /* USER CODE END 0 */
@@ -236,8 +255,9 @@ int main(void)
   MX_GPIO_Init();
   MX_ADC1_Init();
   MX_TIM4_Init();
-  MX_TIM3_Init();
+  MX_DMA_Init();
   MX_USART2_UART_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 
 	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2);
@@ -292,7 +312,7 @@ int main(void)
 	motor2(0);
 	motor3(0);
 	HAL_UARTEx_ReceiveToIdle_DMA(&huart2, Rx2_Buff, RX2_Size);
-//  __HAL_DMA_DISABLE_IT(&hdma_usart2_rx, DMA_IT_HT);
+  __HAL_DMA_DISABLE_IT(&hdma_usart2_rx, DMA_IT_HT);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -300,6 +320,10 @@ int main(void)
   while (1)
   {
 
+//	  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, 750);
+//	  HAL_Delay(3000);
+//	  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, 250);
+//	  HAL_Delay(3000);
 
 //	  if(HAL_GetTick() - start_time > 20000){
 //		  ///////////////////// default
@@ -338,6 +362,8 @@ int main(void)
 	motor3(error3);
 
 	motor4(Motor4_SP);
+	motor5(Motor5_SP);
+	motor6(Motor6_SP);
 
     /* USER CODE END WHILE */
 
@@ -455,9 +481,9 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 15;
+  htim3.Init.Prescaler = 63;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 65535;
+  htim3.Init.Period = 9999;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
@@ -576,6 +602,22 @@ static void MX_USART2_UART_Init(void)
   /* USER CODE BEGIN USART2_Init 2 */
 
   /* USER CODE END USART2_Init 2 */
+
+}
+
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Channel6_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel6_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel6_IRQn);
 
 }
 
