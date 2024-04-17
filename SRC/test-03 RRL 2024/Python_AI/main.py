@@ -7,7 +7,7 @@ import time
 speed = 50
 
 
-HOST = '192.168.253.148'
+HOST = '192.168.0.148'
 PORT = 3000
 MovConnected  = False
 ArmConnected  = False
@@ -98,23 +98,34 @@ def keydown(e):
         if(e.char == 'A'): motor(-255, 255, 255, -255)
         if(e.char == 'e' or e.char == 'E'): motor(50, 50, 50, 50)
         if(e.char == 'q' or e.char == 'Q'): motor(-50, -50, -50, -50)
-        if(e.char == 'x'): set_step_home()
-        if(e.char == 'u'): rotate_arm1(1, 100)
-        if(e.char == 'o'): rotate_arm1(0, 100)
-        if(e.char == 'c'): updateDistances()
+        # if(e.char == 'x'): set_step_home()
+        # if(e.char == 'u'): rotate_arm1(1, 100)
+        # if(e.char == 'o'): rotate_arm1(0, 100)
+        # if(e.char == 'c'): updateDistances()
+        if(e.char == '1'): motorARM(3800, 3500, 2000, 0)
+        if(e.char == '2'): motorARM(1600, 1500, 1000, 0)
+        if(e.char == '3'): motorARM(1000, 1000, 1800, 0)
+        if(e.char == '4'): motorARM(3000, 2500, 1800, 0)
+        if(e.char == '5'): motorARM(1600, 2100, 1800, 0)
+        if(e.char == '7'): motorARM(1900, 800, 1300, 0)
+        if(e.char == '.'): servo1(100)
+        if(e.char == '/'): servo1(190)
+        if(e.char == 'm'): servo2(100)
+        if(e.char == ','): servo2(200)
+        
         keyHold = True
-    if(e.char == 'j'): rotate_arm2(0)
-    if(e.char == 'l'): rotate_arm2(1)
-    if(e.char == 'i'): rotate_arm3(0)
-    if(e.char == 'k'): rotate_arm3(1)
+    # if(e.char == 'j'): rotate_arm2(0)
+    # if(e.char == 'l'): rotate_arm2(1)
+    # if(e.char == 'i'): rotate_arm3(0)
+    # if(e.char == 'k'): rotate_arm3(1)
 def keyup(e):
     global keyHold
-    if(e.char == 'j'): rotate_arm2(2)
-    if(e.char == 'l'): rotate_arm2(2)
-    if(e.char == 'i'): rotate_arm3(2)
-    if(e.char == 'k'): rotate_arm3(2)
-    else:
-        motor(0,0,0,0)
+    # if(e.char == 'j'): rotate_arm2(2)
+    # if(e.char == 'l'): rotate_arm2(2)
+    # if(e.char == 'i'): rotate_arm3(2)
+    # if(e.char == 'k'): rotate_arm3(2)
+    # else:
+    motor(0,0,0,0)
     keyHold = False
 def show_frames():
     ret, frame = cap.read()
@@ -321,6 +332,56 @@ def Ebutton_call_back():
         return
     MovClient.send(b'PE000000')
     time.sleep(0.01)
+def motorARM(v1, v2, v3, v4):
+    global ArmClient
+    if not ArmConnected:
+        return
+    b = bytearray()
+    b.append(ord('A'))
+    b.append(v1//255)
+    b.append(v1%255)
+    b.append(v2//255)
+    b.append(v2%255)
+    b.append(v3//255)
+    b.append(v3%255)
+    b.append(v4//255)
+    b.append(v4%255)
+    ArmClient.send(b)
+    time.sleep(0.1)
+
+def servo1(angle):
+    global ArmClient
+    if not ArmConnected:
+        return
+    b = bytearray()
+    b.append(ord('S'))
+    b.append(ord('1'))
+    b.append(angle//255)
+    b.append(angle%255)
+    b.append(ord('-'))
+    b.append(ord('-'))
+    b.append(ord('-'))
+    b.append(ord('-'))
+    b.append(ord('-'))
+    ArmClient.send(b)
+    time.sleep(0.1)
+    
+def servo2(angle):
+    global ArmClient
+    if not ArmConnected:
+        return
+    b = bytearray()
+    b.append(ord('S'))
+    b.append(ord('2'))
+    b.append(angle//255)
+    b.append(angle%255)
+    b.append(ord('-'))
+    b.append(ord('-'))
+    b.append(ord('-'))
+    b.append(ord('-'))
+    b.append(ord('-'))
+    ArmClient.send(b)
+    time.sleep(0.1)
 ######################## AI Begin
 
 arrived = False

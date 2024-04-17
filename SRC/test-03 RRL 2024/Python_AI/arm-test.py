@@ -1,6 +1,6 @@
 import socket
 import time
-HOST = '192.168.208.148'
+HOST = '192.168.0.148'
 PORT = 3000
 MovConnected  = False
 ArmConnected  = False
@@ -58,10 +58,10 @@ def servo2(angle):
     time.sleep(0.1)
 time.sleep(0.1)
 servo1(200)
-servo2(200)
+servo2(100)
 
-motor(3800, 3500, 2000, 0)
-# motor(1600, 2100, 1800, 0)
+# motor(3800, 3500, 2000, 0)
+motor(1600, 2100, 1800, 0)
 time.sleep(0.1)
 # data = client.recv(100)
 # print(data)

@@ -93,8 +93,14 @@ uint8_t GY_Set_Command[] = {0xA5, 0x55};
 
 uint32_t Last_Time = 0;
 uint16_t oldPos=0, newPos=0;
-uint16_t Motor1_Pulse = 0;
-uint8_t Motor1_Dir = 1;
+int32_t Motor1_Pulse = 0;
+int32_t Motor2_Pulse = 0;
+int32_t Motor3_Pulse = 0;
+int32_t Motor4_Pulse = 0;
+int Motor1_Dir = 1;
+int Motor2_Dir = 1;
+int Motor3_Dir = 1;
+int Motor4_Dir = 1;
 double Motor1_FB = 0;
 uint32_t millis = 0;
 void delay_us (uint16_t us)
@@ -123,65 +129,77 @@ void motor(int L1, int L2, int R2, int R1){
 	if(R2 < -65535) R2 = -65535;
 	if(R1 < -65535) R1 = -65535;
 
-	// ------------------ L1
+	// ------------------ L2
 	if(L2 == 0){
 		HAL_GPIO_WritePin(INA1_GPIO_Port, INA1_Pin, 0);
 		HAL_GPIO_WritePin(INB1_GPIO_Port, INB1_Pin, 0);
 		TIM4->CCR2 = 65535;
+		Motor2_Dir = 0;
 	}
 	else if(L2 > 0){
 		HAL_GPIO_WritePin(INA1_GPIO_Port, INA1_Pin, 1);
 		HAL_GPIO_WritePin(INB1_GPIO_Port, INB1_Pin, 0);
 		TIM4->CCR2 = L2;
+		Motor2_Dir = 1;
 	}else{
 		HAL_GPIO_WritePin(INA1_GPIO_Port, INA1_Pin, 0);
 		HAL_GPIO_WritePin(INB1_GPIO_Port, INB1_Pin, 1);
 		TIM4->CCR2 = -L2;
+		Motor2_Dir = -1;
 	}
-	// ------------------ L2
+	// ------------------ L1
 	if(L1 == 0){
 		HAL_GPIO_WritePin(INA2_GPIO_Port, INA2_Pin, 0);
 		HAL_GPIO_WritePin(INB2_GPIO_Port, INB2_Pin, 0);
 		TIM4->CCR1 = 65535;
+		Motor1_Dir = 0;
 	}
 	else if(L1 > 0){
 		HAL_GPIO_WritePin(INA2_GPIO_Port, INA2_Pin, 1);
 		HAL_GPIO_WritePin(INB2_GPIO_Port, INB2_Pin, 0);
 		TIM4->CCR1 = L1;
+		Motor1_Dir = 1;
 	}else{
 		HAL_GPIO_WritePin(INA2_GPIO_Port, INA2_Pin, 0);
 		HAL_GPIO_WritePin(INB2_GPIO_Port, INB2_Pin, 1);
 		TIM4->CCR1 = -L1;
+		Motor1_Dir = -1;
 	}
 	// ------------------ R2
 	if(R2 == 0){
 		HAL_GPIO_WritePin(INA3_GPIO_Port, INA3_Pin, 0);
 		HAL_GPIO_WritePin(INB3_GPIO_Port, INB3_Pin, 0);
 		TIM4->CCR3 = 65535;
+		Motor3_Dir = 0;
 	}
 	else if(R2 > 0){
 		HAL_GPIO_WritePin(INA3_GPIO_Port, INA3_Pin, 1);
 		HAL_GPIO_WritePin(INB3_GPIO_Port, INB3_Pin, 0);
 		TIM4->CCR3 = R2;
+		Motor3_Dir = 1;
 	}else{
 		HAL_GPIO_WritePin(INA3_GPIO_Port, INA3_Pin, 0);
 		HAL_GPIO_WritePin(INB3_GPIO_Port, INB3_Pin, 1);
 		TIM4->CCR3 = -R2;
+		Motor3_Dir = -1;
 	}
 	// ------------------ R1
 	if(R1 == 0){
 		HAL_GPIO_WritePin(INA4_GPIO_Port, INA4_Pin, 0);
 		HAL_GPIO_WritePin(INB4_GPIO_Port, INB4_Pin, 0);
 		TIM4->CCR4 = 65535;
+		Motor4_Dir = 0;
 	}
 	else if(R1 > 0){
 		HAL_GPIO_WritePin(INA4_GPIO_Port, INA4_Pin, 1);
 		HAL_GPIO_WritePin(INB4_GPIO_Port, INB4_Pin, 0);
 		TIM4->CCR4 = R1;
+		Motor4_Dir = 1;
 	}else{
 		HAL_GPIO_WritePin(INA4_GPIO_Port, INA4_Pin, 0);
 		HAL_GPIO_WritePin(INB4_GPIO_Port, INB4_Pin, 1);
 		TIM4->CCR4 = -R1;
+		Motor4_Dir = -1;
 	}
 }
 void stop(){
@@ -272,6 +290,10 @@ void getDistances(){
 //	while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6) == 1) srf_cnt++;
 //	Left_Dist = srf_cnt/52;
 }
+int abs(int v){
+	if(v >= 0) return v;
+	else return -v;
+}
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 	if(huart->Instance == USART1){
 		RED_ON;
@@ -304,19 +326,31 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 				Correction_EN = 0;
 			}
 		}
-//		else if(Rx1_Buff[0] == 'D') {
-//			if(Rx1_Buff[1] == 'A' && Rx1_Buff[2] == 'L' && Rx1_Buff[3] == 'L'){
-//				getDistances();
-//				uint8_t tx_data[] = {(uint8_t) Front_Dist >> 8,(uint8_t) Front_Dist & 0xFF,
-//									 (uint8_t) Right_Dist >> 8,(uint8_t) Right_Dist & 0xFF,
-//									 (uint8_t) Back_Dist  >> 8,(uint8_t) Back_Dist  & 0xFF,
-//									 (uint8_t) Left_Dist  >> 8,(uint8_t) Left_Dist  & 0xFF};
-//				HAL_UART_Transmit(&huart1, tx_data, 8, PHY_FULLDUPLEX_10M);
-//			}
-//		}
+		else if(Rx1_Buff[0] == 'D') {
+			getDistances();
+			uint8_t tx_data[] = {
+				 '+', (uint8_t) abs(Motor1_Pulse/255), (uint8_t) abs(Motor1_Pulse%255),
+				 '+', (uint8_t) abs(Motor2_Pulse/255), (uint8_t) abs(Motor2_Pulse%255),
+				 '+', (uint8_t) abs(Motor3_Pulse/255), (uint8_t) abs(Motor3_Pulse%255),
+				 '+', (uint8_t) abs(Motor4_Pulse/255), (uint8_t) abs(Motor4_Pulse%255)
+			};
+			if(Motor1_Pulse < 0) tx_data[0] = '-';
+			if(Motor2_Pulse < 0) tx_data[3] = '-';
+			if(Motor3_Pulse < 0) tx_data[6] = '-';
+			if(Motor4_Pulse < 0) tx_data[9] = '-';
+
+			HAL_UART_Transmit(&huart1, tx_data, 12, PHY_FULLDUPLEX_10M);
+		}
 		else if(Rx1_Buff[0] == 'P') {
 			look_direction = Rx1_Buff[1];
 		}
+		else if(Rx1_Buff[0] == 'R') {
+			Motor1_Pulse = 0;
+			Motor2_Pulse = 0;
+			Motor3_Pulse = 0;
+			Motor4_Pulse = 0;
+		}
+
 		RED_OFF;
 		HAL_UARTEx_ReceiveToIdle_DMA(&huart1, Rx1_Buff, RX1_Size);
 		__HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
@@ -352,8 +386,18 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
 	if(GPIO_Pin == GPIO_PIN_1){
-		Motor1_Pulse++;
+		Motor2_Pulse += Motor2_Dir;
 	}
+	if(GPIO_Pin == GPIO_PIN_0){
+		Motor3_Pulse += Motor3_Dir;
+	}
+	if(GPIO_Pin == GPIO_PIN_7){
+		Motor1_Pulse += Motor1_Dir;
+	}
+	if(GPIO_Pin == GPIO_PIN_6){
+		Motor4_Pulse += Motor4_Dir;
+	}
+
 }
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
@@ -435,14 +479,14 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-//	  if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1)) HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, 1); // Red LED
+//	  if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_7)) HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, 1); // Red LED
 //	  else HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, 0); // Red LED
 
-	  if(millis > 200){
-		  Motor1_FB = Motor1_Dir * ((Motor1_Pulse / 36.0) / 200.0)*1000*60;
-		  Motor1_Pulse = 0;
-		  millis = 0;
-	  }
+//	  if(millis > 200){
+//		  Motor1_FB = Motor1_Dir * ((Motor1_Pulse / 36.0) / 200.0)*1000*60;
+//		  Motor1_Pulse = 0;
+//		  millis = 0;
+//	  }
 	  K_P = Heading;
 	  if(HAL_GetTick() - Last_Time > 1000){
 		  if(Heading == 0) {
@@ -765,8 +809,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13|GPIO_PIN_14, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|INA3_Pin
-                          |INB3_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4|GPIO_PIN_5|INA3_Pin|INB3_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, INA2_Pin|INB2_Pin|INA1_Pin|INB1_Pin
@@ -785,17 +828,21 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PA4 PA5 PA6 INA3_Pin
-                           INB3_Pin */
-  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|INA3_Pin
-                          |INB3_Pin;
+  /*Configure GPIO pins : PA4 PA5 INA3_Pin INB3_Pin */
+  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5|INA3_Pin|INB3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PB1 */
-  GPIO_InitStruct.Pin = GPIO_PIN_1;
+  /*Configure GPIO pins : PA6 PA7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PB0 PB1 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -810,8 +857,14 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+
   HAL_NVIC_SetPriority(EXTI1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI1_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 }
 

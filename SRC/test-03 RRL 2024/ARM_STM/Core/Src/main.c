@@ -68,7 +68,7 @@ static void MX_TIM3_Init(void);
 #define LED_ON    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, 0)
 #define LED_OFF   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, 1)
 
-#define MAX_SPEED 40000
+#define MAX_SPEED 65000
 
 #define RX2_Size 9
 uint8_t Rx2_Buff[RX2_Size];
@@ -81,7 +81,7 @@ int Motor1_SP = 500;
 int Motor2_SP = 2400;
 int Motor3_SP = 2400;
 int Motor4_SP = 0;
-int Motor5_SP = 100;
+int Motor5_SP = 200;
 int Motor6_SP = 100;
 int error1 = 0;
 int error2 = 0;
@@ -281,9 +281,9 @@ int main(void)
 	Motor3_SP = 2000;
 
 	///////////////////// Grab
-//	Motor1_SP = 1600;
-//	Motor2_SP = 2100;
-//	Motor3_SP = 1800;
+//	Motor1_SP = 2700;
+//	Motor2_SP = 1300;
+//	Motor3_SP = 1100;
 
 //	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, 0); // DIR
 //	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, 0); // ENA
@@ -353,8 +353,8 @@ int main(void)
 	if(error1 > -15000 && error1 < 15000) error1 = 0;
 	motor1(error1);
 
-	error2 = -(Motor2_FB - Motor2_SP)*90;
-	if(error2 > -15000 && error2 < 15000) error2 = 0;
+	error2 = -(Motor2_FB - Motor2_SP)*70;
+	if(error2 > -20000 && error2 < 20000) error2 = 0;
 	motor2(error2);
 
 	error3 = (Motor3_FB - Motor3_SP)*90;
