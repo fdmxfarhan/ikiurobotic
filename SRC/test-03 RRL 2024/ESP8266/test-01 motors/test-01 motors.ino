@@ -2,7 +2,7 @@
 #include <ESP8266WiFiMulti.h>
 
 #ifndef STASSID
-#define STASSID "mahdi"
+#define STASSID "FDMX"
 #define STAPSK  "123454321"
 #endif
 
@@ -10,9 +10,10 @@
 #define Name "ARM"
 
 const char* ssid     = STASSID;
-const char* password = STAPSK;
+const char* password = STAPSK; 
 
-const char* host = "192.168.43.108";
+// const char* host = "192.168.43.108";
+const char* host = "192.168.43.74";
 const uint16_t port = 3000;
 
 ESP8266WiFiMulti WiFiMulti;
