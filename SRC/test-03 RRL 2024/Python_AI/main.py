@@ -4,10 +4,10 @@ import cv2
 from PIL import Image, ImageTk
 import time
 
-speed = 50
+speed = 27
 
 
-HOST = '192.168.0.148'
+HOST = '192.168.133.148'
 PORT = 3000
 MovConnected  = False
 ArmConnected  = False
@@ -43,10 +43,17 @@ leftDistLabelVar = StringVar()
 StateLabelVar = StringVar()
 StateLabelVar.set('Manual')
 
+objects_list = []
+grab_timeout_cnt = 0
+object_search_cnt = 0
 def motor(ml1, ml2, mr2, mr1, d=0):
     global MovConnected
     if not MovConnected: 
         return
+    ml1 = int(ml1)
+    ml2 = int(ml2)
+    mr1 = int(mr1)
+    mr2 = int(mr2)
     b = bytearray()
     b.append(ord('M'))
     if(mr1 >= 0):
@@ -103,11 +110,14 @@ def keydown(e):
         # if(e.char == 'o'): rotate_arm1(0, 100)
         # if(e.char == 'c'): updateDistances()
         if(e.char == '1'): motorARM(3800, 3500, 2000, 0)
-        if(e.char == '2'): motorARM(1600, 1500, 1000, 0)
-        if(e.char == '3'): motorARM(1000, 1000, 1800, 0)
-        if(e.char == '4'): motorARM(3000, 2500, 1800, 0)
-        if(e.char == '5'): motorARM(1600, 2100, 1800, 0)
-        if(e.char == '7'): motorARM(1900, 800, 1300, 0)
+        if(e.char == '2'): motorARM(2000, 200, 3700, 0)
+        if(e.char == '3'): motorARM(2000, 200, 500, 0)
+        if(e.char == '4'): motorARM(1400, 2000, 2300, 0)
+        if(e.char == '5'): motorARM(2700, 2800, 2000, 0)
+        if(e.char == '6'): motorARM(2700, 2800, 2000, 500)
+        if(e.char == '7'): motorARM(2000, 1800, 1800, 500)
+        if(e.char == '8'): motorARM(2700, 2800, 2000, 400)
+        if(e.char == '9'): motorARM(2700, 2800, 2000, 400)
         if(e.char == '.'): servo1(100)
         if(e.char == '/'): servo1(190)
         if(e.char == 'm'): servo2(100)
@@ -128,20 +138,27 @@ def keyup(e):
     motor(0,0,0,0)
     keyHold = False
 def show_frames():
+    global objects_list
     ret, frame = cap.read()
     frame_HSV = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     # print(frame_HSV[int(480/2)][int(720/2)])
     frame_threshold = cv2.inRange(frame_HSV, (0, 0, 0), (180, 255, 110))
     contours0, hierarchy = cv2.findContours(frame_threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     final_contours = []
+    objects_list = []
     for contour in contours0:
         area = cv2.contourArea(contour)
         if area > 2000:
             final_contours.append(contour)
+            x_cont, y_cont, w_cont, h_cont = cv2.boundingRect(contour)
+            object_x = (x_cont + (w_cont / 2))
+            object_y = (y_cont + (h_cont / 2))
+            objects_list.append([object_x, object_y])
     for i in range(len(final_contours)):
         cv2.drawContours(frame, final_contours, i, (0,255,0), 3)
 
-    cv2image= cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
+    cv2image = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
+    # cv2image = cv2.cvtColor(frame_threshold,cv2.COLOR_BGR2RGB)
     img = Image.fromarray(cv2image)
     imgtk = ImageTk.PhotoImage(image = img)
     imgLable.imgtk = imgtk
@@ -333,7 +350,7 @@ def Ebutton_call_back():
     MovClient.send(b'PE000000')
     time.sleep(0.01)
 def motorARM(v1, v2, v3, v4):
-    global ArmClient
+    global ArmClient, ArmConnected
     if not ArmConnected:
         return
     b = bytearray()
@@ -382,6 +399,10 @@ def servo2(angle):
     b.append(ord('-'))
     ArmClient.send(b)
     time.sleep(0.1)
+def clamp(num, min_, max_):
+    if num < min_: return min_
+    if num > max_: return max_
+    return num
 ######################## AI Begin
 
 arrived = False
@@ -391,19 +412,52 @@ def robotMainSetup():
     moving = False
     stop() 
 def robotMainLoop():
-    global AIStarted, frontDist, backDist, rightDist, leftDist, moving
+    global AIStarted, frontDist, backDist, rightDist, leftDist, moving, speed, grab_timeout_cnt, object_search_cnt
     if AIStarted:
-        updateDistances()
-        # if backDist > 60:
-        #     if not moving: 
-        #         move_backward()
-        #         moving = True
-        # else:
-        #     stop()
-        #     moving = False
+        # updateDistances()
+        speed = 30
+        if len(objects_list) > 0:
+            x_error = clamp((objects_list[0][0] - 300) * 0.24, -35, 35)
+            y_error = clamp((objects_list[0][1] - 400) * 0.20, -35, 35)
+
+            if abs(x_error) > 25:
+                motor(x_error, -x_error, -x_error, x_error)
+            elif abs(y_error) > 25:
+                motor(-y_error, -y_error, y_error, y_error)
+
+            else:
+                stop()
+                grab_timeout_cnt += 1
+                if grab_timeout_cnt > 40:
+                    stop()
+                    time.sleep(2)
+                    motorARM(1400, 2000, 1900, 0)
+                    time.sleep(3)
+                    servo2(200)
+                    time.sleep(3)
+                    motorARM(2700, 2800, 2000, 0)
+                    time.sleep(3)
+                    motorARM(2700, 2800, 2000, 500)
+                    time.sleep(6)
+                    motorARM(2000, 1800, 1800, 500)
+                    time.sleep(3)
+                    servo2(100)
+                    time.sleep(3)
+                    motorARM(2000, 200, 500, 0)
+                    time.sleep(6)
+                    grab_timeout_cnt = 0
+            # print(objects_list[0])
+            object_search_cnt = 0
+            # print(x_error, y_error)
+        else:
+            object_search_cnt+=1
+            if object_search_cnt > 50 and object_search_cnt < 100:
+                move_right()
+            elif object_search_cnt > 150 and object_search_cnt < 200:
+                move_left()
     else:
         pass
-    frame.after(500, robotMainLoop)
+    frame.after(100, robotMainLoop)
 
 ######################## AI End
 

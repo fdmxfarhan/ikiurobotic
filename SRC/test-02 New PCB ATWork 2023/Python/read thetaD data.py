@@ -2,7 +2,7 @@ import socket, time, pandas
 import pandas as pd
 import openpyxl
 
-HOST = '192.168.46.148'
+HOST = '192.168.186.148'
 PORT = 3000
 socket.setdefaulttimeout(1)
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

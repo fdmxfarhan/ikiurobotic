@@ -446,26 +446,26 @@ int main(void)
   {
 	  time = (HAL_GetTick() - beginTime)/1000.0;
 
-//	  thetaD = 50 * sin(time*2.0);
-	  thetaD = 50 * chirp(time * 0.1);
+	  thetaD = 50 * sin(time*0.2);
+//	  thetaD = 50 * chirp(time * 0.1);
 
 	  if(thetaD >  180) thetaD = thetaD - 360;
 	  if(thetaD < -180) thetaD = thetaD + 360;
 
-	  K_P = Heading_f;
+	  K_P = 4 * (Heading_f - thetaD);
 	  if(HAL_GetTick() - Last_Time >= 100){
-		  if(Heading == 0) {
+		  if(K_P == 0) {
 			  K_I = 0;
 			  K_D = 0;
 		  }else{
-			  K_I =( (Heading_f) * (0.1))+K_I ;
-			  K_D = (Heading_f - Last_Heading)/0.1;
+			  K_I = ((K_P) * (0.1))+K_I ;
+			  K_D = ((K_P) - Last_Heading)/0.1;
 		  }
 		  Last_Time = HAL_GetTick();
-		  Last_Heading = Heading_f;
+		  Last_Heading = K_P;
 	  }
-	  // correction = 2.1 * K_P + 0.43 * K_I + 0.0 * K_D;
-	  correction = 4 * (Heading - thetaD);//1 * K_P + 100 * K_I + 1 * K_D;
+	   correction = 1.46 * K_P + 17.5 * K_I;// - 0.00883 * K_D;
+//	  correction = 4 * (Heading - thetaD);//1 * K_P + 100 * K_I + 1 * K_D;
 
 
 	  if(Correction_EN == 1)

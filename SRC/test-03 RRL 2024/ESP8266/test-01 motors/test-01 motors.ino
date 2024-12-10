@@ -6,14 +6,14 @@
 #define STAPSK  "123454321"
 #endif
 
-// #define Name "MOV"
-#define Name "ARM"
+#define Name "MOV"
+// #define Name "ARM"
 
 const char* ssid     = STASSID;
 const char* password = STAPSK; 
 
 // const char* host = "192.168.43.108";
-const char* host = "192.168.43.74";
+const char* host = "192.168.133.148";
 const uint16_t port = 3000;
 
 ESP8266WiFiMulti WiFiMulti;
